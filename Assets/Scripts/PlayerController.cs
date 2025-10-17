@@ -26,25 +26,25 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // --- Движение влево/вправо ---
-        float move = Input.GetAxisRaw("Horizontal"); // -1, 0, 1
+        // Движение влево/вправо
+        float move = Input.GetAxisRaw("Horizontal");
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
 
-        // --- Прыжок ---
+        // Прыжок
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            isGrounded = false; // сразу снимаем с земли, чтобы не прыгать дважды
+            isGrounded = false;
         }
 
-        // --- Анимации ---
+        // Анимации
         if (anim != null)
         {
-            anim.SetFloat("Speed", Mathf.Abs(move));        // ходьба/стояние
-            anim.SetFloat("VerticalVelocity", rb.linearVelocity.y); // прыжок/падение
+            anim.SetFloat("Speed", Mathf.Abs(move));
+            anim.SetFloat("VerticalVelocity", rb.linearVelocity.y);
         }
 
-        // --- Переворот спрайта ---
+        // Переворот спрайта
         if (sprite != null)
         {
             if (move > 0.1f) sprite.flipX = false;
@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // --- Проверка касания с землёй ---
+    //Проверка касания с землёй
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
