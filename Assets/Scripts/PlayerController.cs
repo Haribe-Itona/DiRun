@@ -4,8 +4,9 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 5f;
-    public float jumpForce = 12f;
+    public float walkSpeed = 5f;
+    public float runSpeed = 15f;
+    public float jumpForce = 20f;
 
     private Rigidbody2D rb;
     private Animator anim;
@@ -28,7 +29,10 @@ public class PlayerController : MonoBehaviour
     {
         // Движение влево/вправо
         float move = Input.GetAxisRaw("Horizontal");
-        rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
+        
+        float speed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+
+        rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
 
         // Прыжок
         if (Input.GetButtonDown("Jump") && isGrounded)
@@ -40,7 +44,7 @@ public class PlayerController : MonoBehaviour
         // Анимации
         if (anim != null)
         {
-            anim.SetFloat("Speed", Mathf.Abs(move));
+            anim.SetFloat("Speed", Mathf.Abs(move * speed));
             anim.SetFloat("VerticalVelocity", rb.linearVelocity.y);
         }
 
@@ -60,6 +64,14 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
         }
     }
+
+    /*
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+            isGrounded = true;
+    }
+    */
 
     private void OnCollisionExit2D(Collision2D collision)
     {
