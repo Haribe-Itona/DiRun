@@ -1,18 +1,21 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerController : MonoBehaviour
+public class Player : MonoBehaviour
 {
     [Header("Movement")]
     public float walkSpeed = 5f;
     public float runSpeed = 15f;
     public float jumpForce = 20f;
-
+    public bool run = false;
+    public bool isJump = false;
+    public float move;
+    float speed;
     private Rigidbody2D rb;
     private Animator anim;
     private SpriteRenderer sprite;
 
-    private bool isGrounded = false;
+    public bool isGrounded = false;
 
     void Awake()
     {
@@ -27,34 +30,47 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Движение влево/вправо
-        float move = Input.GetAxisRaw("Horizontal");
+
+        anim.SetFloat("Speed", Mathf.Abs(move * speed));
+        anim.SetFloat("VerticalVelocity", rb.linearVelocity.y);
         
-        float speed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+        // Переворот спрайта
 
-        rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+        if (move > 0.1f) sprite.flipX = false;
+        else if (move < -0.1f) sprite.flipX = true;
+        
+    }
 
-        // Прыжок
-        if (Input.GetButtonDown("Jump") && isGrounded)
+    public float jumpTime = 50;
+    float timeOfJump;
+
+    public void Jump()
+    {
+        if (isGrounded)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            rb.AddForce(new Vector2(0, jumpForce));
+            isJump = true;
+            timeOfJump = 0;
             isGrounded = false;
         }
-
-        // Анимации
-        if (anim != null)
-        {
-            anim.SetFloat("Speed", Mathf.Abs(move * speed));
-            anim.SetFloat("VerticalVelocity", rb.linearVelocity.y);
-        }
-
-        // Переворот спрайта
-        if (sprite != null)
-        {
-            if (move > 0.1f) sprite.flipX = false;
-            else if (move < -0.1f) sprite.flipX = true;
-        }
     }
+    public void HoldJump()
+    {
+
+        if (isJump)
+        {
+            rb.AddForce(new Vector2(0, jumpForce * (jumpTime - timeOfJump / jumpTime)));
+            timeOfJump += 1f;
+        }
+        if( timeOfJump >= jumpTime) { isJump = false; }
+    }
+    public void Move()
+    {
+        speed = run ? runSpeed : walkSpeed;
+
+        rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+    }
+
 
     //Проверка касания с землёй
     private void OnCollisionEnter2D(Collision2D collision)
